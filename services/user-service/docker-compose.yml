@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  user-services:
+    build: ./
+    container_name: user-service
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./.env
+    depends_on:
+      - userPostgresDB
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+
+  userPostgresDB:
+    image: postgres:latest
+    container_name: userPostgresDB
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: todoDB
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./order_db_data:/var/lib/postgresql/data
+    
+volumes:
+  order_db_data:
+     
