@@ -1,0 +1,71 @@
+version: '3.8'
+services:
+  # USER-SERVICE
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./services/user-service/.env
+    depends_on:
+      - userPostgresDB
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  userPostgresDB:
+    image: postgres:latest
+    container_name: userPostgresDB
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: todoDB
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+  
+  # TASK-SERVICE
+  task-service:
+    build: ./services/task-service
+    container_name: task-service
+    ports: 
+      - "5001:5001"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    env_file:
+      - ./services/task-service/.env
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # GATEWAY-SERVICE
+  gateway-service:
+    build: ./gateway
+    container_name: gateway-service
+    ports:
+      - "5003:5003"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./gateway/.env
+
+  # CLIENT-SERVICE
+  # client:
+  #   build: ./client
+  #   container_name: client-service
+  #   ports:
+  #     - "5173:5173"
+
+volumes:
+  user_db_data:
+  mongo_data:
