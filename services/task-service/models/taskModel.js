@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
-  title: { type: String, required: true, trim: true },
-  description: { type: String, required: true, trim: true },
+  title: { type: String, required: true, trim: true,  maxlength: 200 },
+  description: { type: String, required: true,  default: '', },
   status: {
     type: String,
     enum: ["pending", "in-progress", "completed"],
@@ -13,8 +13,11 @@ const taskSchema = new mongoose.Schema({
     enum: ["low", "medium", "high"],
     default: "medium",
   },
-  dueDate: Date,
-  userId: { type: String, required: true }, // ✅ link to JWT userId
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  userId: { type: String, required: true }, 
   sharedWith: [{
   type: mongoose.Schema.Types.ObjectId,
   ref: 'User',

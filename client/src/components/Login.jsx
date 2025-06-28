@@ -56,15 +56,17 @@ const Login = () => {
         <div className="w-[400px] p-6 border-2 border-gray-400 rounded-md shadow-md flex flex-col gap-10 items-center bg-white">
           <img className="w-[300px] " src="/public/todo.webp" alt="" />
           <h1 className="text-2xl ">Welcome. Please sign in</h1>
-          <GoogleLogin
-            onSuccess={handleSuccess}
-            onError={() => console.log("Login Failed")}
-            width="300"
-            theme="outline"
-            size="large"
-            shape="rectangular"
-            text="signin_with"
-          />
+          <div className="pb-5" style={{ width: '300px' }}>
+  <GoogleLogin
+    onSuccess={handleSuccess}
+    onError={() => console.log('Login Failed')}
+    theme="outline"
+    size="large"
+    shape="rectangular"
+    text="signin_with"
+  />
+</div>
+
         </div>
       </div>
     </GoogleOAuthProvider>
