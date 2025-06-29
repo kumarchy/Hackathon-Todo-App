@@ -23,7 +23,7 @@ const MainLayout = () => {
   const [shareEmail, setShareEmail] = useState('');
 
   useEffect(() => {
-    const socket = io('http://localhost:5001');
+    const socket = io('https://hackathon-todo-app-taskservice.onrender.com');
     socket.on('connect', () => console.log('🟢 Connected:', socket.id));
 
     socket.on('task_created', (newTask) => {
@@ -48,10 +48,10 @@ const MainLayout = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        let url = 'http://localhost:5001/task/getTask';
+        let url = 'https://hackathon-todo-app-taskservice.onrender.com/task/getTask';
 
         if (searchQuery.trim() !== '') {
-          url = `http://localhost:5001/task/search?query=${encodeURIComponent(searchQuery)}`;
+          url = `https://hackathon-todo-app-taskservice.onrender.com/task/search?query=${encodeURIComponent(searchQuery)}`;
         }
 
         const response = await axios.get(url, {
@@ -128,7 +128,7 @@ const MainLayout = () => {
   const shareTaskWithUser = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5001/task/shareTask/${shareTaskId}`, { email: shareEmail }, {
+      await axios.put(`https://hackathon-todo-app-taskservice.onrender.com/task/shareTask/${shareTaskId}`, { email: shareEmail }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Task shared with ${shareEmail}`);
