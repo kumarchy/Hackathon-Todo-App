@@ -23,7 +23,7 @@ function TaskAddPage() {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const response = await axios.get(`http://localhost:5001/task/getTask/${taskId}`, {
+        const response = await axios.get(`https://hackathon-todo-app-taskservice.onrender.com/task/getTask/${taskId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setTask({
@@ -49,14 +49,14 @@ function TaskAddPage() {
     try {
       if (update && taskId) {
         await axios.put(
-          `http://localhost:5001/task/updateTask/${taskId}`,
+          `https://hackathon-todo-app-taskservice.onrender.com/task/updateTask/${taskId}`,
           task,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('✅ Task updated successfully!');
       } else {
         await axios.post(
-          'http://localhost:5001/task/createTask',
+          'https://hackathon-todo-app-taskservice.onrender.com/task/createTask',
           task,
           { headers: { Authorization: `Bearer ${token}` } }
         );
