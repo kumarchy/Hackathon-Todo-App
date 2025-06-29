@@ -19,7 +19,7 @@ const TodoItem = ({ todo, onToggle, onToggleFavorite, onShare }) => {
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:5001/task/deleteTask/${todo._id}`, {
+      await fetch(`https://hackathon-todo-app-taskservice.onrender.com/task/deleteTask/${todo._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
