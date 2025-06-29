@@ -20,8 +20,9 @@ app.use('/task',router);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
-  },
+    origin: 'http://localhost:5173', 
+    methods: ['GET', 'POST']
+  }
 });
 
 io.on('connection', (socket) => {
@@ -39,6 +40,6 @@ app.get('/task', (req, res) => {
   res.send('Task service with Socket.IO is running');
 }); 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Task Service is running on port ${PORT}`);
 });

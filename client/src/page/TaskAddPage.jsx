@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, Flag, FileText, Type, Plus, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Calendar, Flag, FileText, Type, Plus, ArrowLeft, Edit2 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function TaskAddPage() {
   const [task, setTask] = useState({
@@ -11,35 +12,64 @@ function TaskAddPage() {
     priority: 'medium'
   });
 
-//   const [showForm, setShowForm] = useState(true);
-  const navigate = useNavigate(); // To redirect after creation
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location;
+  const { update, taskId } = state || {};
+
   const token = localStorage.getItem('token');
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const response = await axios.post(
-      'http://localhost:5001/task/createTask',
-      task,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+  // Fetch existing task if updating
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/task/getTask/${taskId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTask({
+          title: response.data.title,
+          description: response.data.description,
+          dueDate: response.data.dueDate.split("T")[0], // to match input[type=date]
+          priority: response.data.priority
+        });
+      } catch (error) {
+        console.error('❌ Error fetching task for update:', error);
+        alert('Failed to load task details');
       }
-    );
+    };
 
-    alert('✅ Task created successfully!');
-    console.log('Created Task:', response.data);
-    setTask({ title: '', description: '', dueDate: '', priority: 'medium' });
-    navigate('/');
+    if (update && taskId) {
+      fetchTask();
+    }
+  }, [update, taskId, token]);
 
-  } catch (error) {
-    console.error('❌ Error creating task:', error.response?.data || error.message);
-    alert('Failed to create task');
-  }
-};
+  // Handle Form Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (update && taskId) {
+        await axios.put(
+          `http://localhost:5001/task/updateTask/${taskId}`,
+          task,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('✅ Task updated successfully!');
+      } else {
+        await axios.post(
+          'http://localhost:5001/task/createTask',
+          task,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('✅ Task created successfully!');
+      }
+
+      setTask({ title: '', description: '', dueDate: '', priority: 'medium' });
+      navigate('/');
+    } catch (error) {
+      console.error('❌ Error submitting task:', error.response?.data || error.message);
+      alert('Failed to submit task');
+    }
+  };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -51,7 +81,7 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-400 to-blue-500 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 p-4 md:p-8">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
@@ -60,14 +90,20 @@ const handleSubmit = async (e) => {
       <div className="relative max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <button 
-            onClick={() => navigate('/')} // go back to homepage
+            onClick={() => navigate('/')}
             className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-black" />
           </button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Add New Task</h1>
-            <p className="text-white/80 text-lg">Create a task to stay organized and productive</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">
+              {update ? 'Update your task' : 'Add New Task'}
+            </h1>
+            <p className="text-black/80 text-lg">
+              {update 
+                ? 'Update a task to stay organized and productive' 
+                : 'Create a task to stay organized and productive'}
+            </p>
           </div>
         </div>
 
@@ -75,7 +111,7 @@ const handleSubmit = async (e) => {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Title */}
             <div className="group">
-              <label className="flex items-center gap-3 text-white font-semibold mb-4 text-lg">
+              <label className="flex items-center gap-3 text-black font-semibold mb-4 text-lg">
                 <div className="p-2 rounded-lg bg-white/10">
                   <Type className="w-5 h-5" />
                 </div>
@@ -85,7 +121,7 @@ const handleSubmit = async (e) => {
                 type="text"
                 value={task.title}
                 onChange={(e) => setTask({ ...task, title: e.target.value })}
-                className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60"
+                className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-black placeholder-black/60"
                 placeholder="Enter your task title..."
                 required
               />
@@ -93,7 +129,7 @@ const handleSubmit = async (e) => {
 
             {/* Description */}
             <div className="group">
-              <label className="flex items-center gap-3 text-white font-semibold mb-4 text-lg">
+              <label className="flex items-center gap-3 text-black font-semibold mb-4 text-lg">
                 <div className="p-2 rounded-lg bg-white/10">
                   <FileText className="w-5 h-5" />
                 </div>
@@ -103,7 +139,7 @@ const handleSubmit = async (e) => {
                 value={task.description}
                 onChange={(e) => setTask({ ...task, description: e.target.value })}
                 rows={4}
-                className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 resize-none"
+                className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-black placeholder-black/60 resize-none"
                 placeholder="Describe your task in detail..."
               />
             </div>
@@ -111,7 +147,7 @@ const handleSubmit = async (e) => {
             {/* Due Date and Priority */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="group">
-                <label className="flex items-center gap-3 text-white font-semibold mb-4 text-lg">
+                <label className="flex items-center gap-3 text-black font-semibold mb-4 text-lg">
                   <div className="p-2 rounded-lg bg-white/10">
                     <Calendar className="w-5 h-5" />
                   </div>
@@ -121,13 +157,13 @@ const handleSubmit = async (e) => {
                   type="date"
                   value={task.dueDate}
                   onChange={(e) => setTask({ ...task, dueDate: e.target.value })}
-                  className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-white"
+                  className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-black"
                   required
                 />
               </div>
 
               <div className="group">
-                <label className="flex items-center gap-3 text-white font-semibold mb-4 text-lg">
+                <label className="flex items-center gap-3 text-black font-semibold mb-4 text-lg">
                   <div className="p-2 rounded-lg bg-white/10">
                     <Flag className="w-5 h-5" />
                   </div>
@@ -136,18 +172,18 @@ const handleSubmit = async (e) => {
                 <select
                   value={task.priority}
                   onChange={(e) => setTask({ ...task, priority: e.target.value })}
-                  className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-white"
+                  className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-black"
                 >
-                  <option value="low" className="bg-gray-800 text-white">Low Priority</option>
-                  <option value="medium" className="bg-gray-800 text-white">Medium Priority</option>
-                  <option value="high" className="bg-gray-800 text-white">High Priority</option>
+                 <option value="low" className="bg-gray-300 text-black">Low Priority</option>
+                  <option value="medium" className="bg-gray-300 text-black">Medium Priority</option>
+                  <option value="high" className="bg-gray-300 text-black">High Priority</option>
                 </select>
               </div>
             </div>
 
             {/* Preview */}
             <div className="flex items-center gap-4 p-4 bg-white/10 rounded-xl border border-white/20">
-              <span className="text-white/80 font-medium">Priority Preview:</span>
+              <span className="text-black/80 font-medium">Priority Preview:</span>
               <div className={`px-4 py-2 rounded-lg bg-gradient-to-r ${getPriorityColor(task.priority)} text-white font-semibold capitalize`}>
                 {task.priority} Priority
               </div>
@@ -157,10 +193,10 @@ const handleSubmit = async (e) => {
             <div className="pt-6">
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 text-white font-bold py-4 px-8 rounded-xl border border-white/30"
+                className="w-full bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 text-black font-bold py-4 px-8 rounded-xl border border-white/30 flex items-center justify-center gap-2"
               >
-                <Plus className="w-6 h-6 mr-2 inline-block" />
-                Create Task
+                {update ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                {update ? 'Update Task' : 'Create Task'}
               </button>
             </div>
           </form>

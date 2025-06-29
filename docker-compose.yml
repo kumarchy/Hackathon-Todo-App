@@ -60,11 +60,11 @@ services:
       - ./gateway/.env
 
   # CLIENT-SERVICE
-  # client:
-  #   build: ./client
-  #   container_name: client-service
-  #   ports:
-  #     - "5173:5173"
+  client:
+    build: ./client
+    container_name: client-service
+    ports:
+      - "5173:5173"
 
 volumes:
   user_db_data:

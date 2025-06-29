@@ -8,8 +8,8 @@ import { List, User, Heart, Check, Trash2 } from 'lucide-react';
  *   counts: {
  *     all: number,
  *     done: number,
- *     favorites: number,
- *     deleted: number
+ *     favorites: number
+ *     
  *   }
  * }} props
  */
@@ -19,7 +19,6 @@ const FilterSidebar = ({ currentFilter, onFilterChange, counts }) => {
     { id: 'my-task', label: 'My Task', icon: User, count: null },
     { id: 'favorites', label: 'Favorites', icon: Heart, count: null },
     { id: 'done', label: 'Done', icon: Check, count: counts.done },
-    { id: 'deleted', label: 'Deleted', icon: Trash2, count: null },
   ];
 
   return (

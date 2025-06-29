@@ -36,7 +36,7 @@ export const googleOAuthLogin = async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
+      expiresIn: '1h',
     });
 
     res.status(200).json({

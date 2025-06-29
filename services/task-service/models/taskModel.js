@@ -19,7 +19,7 @@ const taskSchema = new mongoose.Schema({
   },
   userId: { type: String, required: true }, 
   sharedWith: [{
-  type: mongoose.Schema.Types.ObjectId,
+  type: String,
   ref: 'User',
 }],
   createdAt: { type: Date, default: Date.now },
